@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+TRASHROOT="$HOME/.trash"
+if [ ! -d $TRASHROOT ]; then
+    mkdir $TRASHROOT
+fi
+
+local DATE=`date "+%Y-%m-%d"`
+local TIME=`date "+%H-%M-%S"`
+local TRASH="$TRASHROOT/$DATE/$TIME"
+# echo $TRASH
+if [ ! -d $TRASH ]; then
+    mkdir -p $TRASH
+fi
+for i in $@; do
+    if [ -e $i ]; then
+        mv $i $TRASH
+    else
+        echo "$i: not found"
+    fi
+done

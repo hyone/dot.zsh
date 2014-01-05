@@ -1,0 +1,11 @@
+# 変数にカレントディレクトリを設定する
+# シェルに長いパス名が表示されて、うざったい時などに便利
+# namedir hoge; cd ~hoge
+
+if (( $# == 0 )) then
+  echo "Usage : $0 pathname"
+  return 1
+fi
+
+eval $1=$PWD;
+echo "$1 =" ~$1;

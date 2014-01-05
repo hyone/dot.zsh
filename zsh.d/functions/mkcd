@@ -1,0 +1,10 @@
+if (( $# == 0 )) then
+  echo "Usage: $0 dirname"
+  return 1
+fi
+
+if [ ! -d $1 ]; then
+    mkdir -p $1
+fi
+
+cd $1

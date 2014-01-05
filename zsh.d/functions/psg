@@ -1,0 +1,6 @@
+if (( $# == 0 )) then
+  echo "Usage: $0 keywords..."
+  return 1
+fi
+ps aux | head -n 1
+ps aux | grep "$@" | grep -v "ps -aux" | grep -v grep

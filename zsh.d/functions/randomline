@@ -1,0 +1,4 @@
+  integer z;
+  z=$(wc -l < $1);
+  z=$[RANDOM % z + 1];
+  echo "$z : $(sed -n ${z}p $1)"

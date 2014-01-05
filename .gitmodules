@@ -1,0 +1,9 @@
+[submodule "zsh.d/bundle/antigen"]
+	path = zsh.d/bundle/antigen
+	url = https://github.com/zsh-users/antigen.git
+[submodule "zsh.d/bundle/opp.zsh"]
+	path = zsh.d/bundle/opp.zsh
+	url = https://github.com/hchbaw/opp.zsh.git
+[submodule "zsh.d/bundle/zce.zsh"]
+	path = zsh.d/bundle/zce.zsh
+	url = https://github.com/hchbaw/zce.zsh.git
