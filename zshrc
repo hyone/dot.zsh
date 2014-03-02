@@ -681,7 +681,8 @@ alias ll="ls --color=auto -lt"
 alias la="ls --color=auto -at"
 alias lla="ls --color=auto -lat"
 alias llh="ls -lth"
-alias d="ls -dt */"
+alias dl="ls -dt */"
+alias dll="ls -l -dt */"
 
 # preserve user ENV varables and aliases on sudo
 # (tail space must not be removed!)
@@ -738,6 +739,50 @@ alias jman="LC_ALL=ja_JP.eucjp /usr/bin/man"
 alias m="man"
 
 alias vr="vim -R"
+
+#   docker
+alias d="docker"
+alias de="docker-destroy"
+alias di="docker images"
+alias dk="docker kill"
+alias dp="docker ps"
+alias dr="docker rm"
+
+function docker-destroy() {
+  local -a containers
+  containers=${(z)@}
+
+  if [ "$containers" = "" ]; then
+    echo "Usage: $0 CONTAINER"
+    return 2;
+  fi
+
+  for container in ${containers}; do
+    docker kill ${container} && docker rm ${container}
+  done
+}
+
+# clean up unused containers and non-named images
+function docker-clean() {
+  local pattern
+  local -a protected_containers
+  protected_containers=${(z)@:-$PROTECTED_CONTAINERS}
+
+  for c in ${protected_containers}; do
+    id=`docker inspect --format "{{ .Config.Hostname }}" ${c} 2>/dev/null`
+    if [ "$id" != "" ]; then
+      pattern="${pattern}|$id"
+    fi
+  done
+  pattern="${pattern#|}"
+
+  echo '---> removing unused containers...'
+  docker rm `docker ps -a -q | grep -v -E "^${pattern}$"`
+
+  echo '---> removing all <none> images...'
+  docker rmi $(docker images | grep -e '^<none>' | awk '{ print $3 }' )
+}
+
 
 #   view directory history
 alias dh="dirs -v"
