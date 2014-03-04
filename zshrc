@@ -766,7 +766,7 @@ function docker-destroy() {
 function docker-clean() {
   local pattern
   local -a protected_containers
-  protected_containers=${(z)@:-$PROTECTED_CONTAINERS}
+  protected_containers=${(z)@:-${DOCKER_PROTECTED_CONTAINERS}}
 
   for c in ${protected_containers}; do
     id=`docker inspect --format "{{ .Config.Hostname }}" ${c} 2>/dev/null`
