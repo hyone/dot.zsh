@@ -783,6 +783,13 @@ function docker-clean() {
   docker rmi $(docker images | grep -e '^<none>' | awk '{ print $3 }' )
 }
 
+function docker-ssh() {
+  local port="$(docker port downward.bind 22 | awk -F: '{print $2}')"
+  local host="$(echo ${DOCKER_HOST} | sed 's/^.*:\/\/\([^:]*\).*$/\1/')"
+
+  echo ssh ${host:-localhost} -p ${port}
+  ssh ${host} -p ${port}
+}
 
 #   view directory history
 alias dh="dirs -v"
