@@ -850,7 +850,7 @@ alias -g 0CP="-print0 | cpio -pd0 "
 alias -g TAI="| tai64nlocal"
 
 alias -g JSON="| python -m json.tool"
-alias -g JQ="| jq '.'"
+alias -g JQ="| jq -C '.'"
 
 alias -g ...='../..'
 alias -g ....='../../..'
