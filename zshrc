@@ -784,10 +784,14 @@ function docker-clean() {
 }
 
 function docker-ssh() {
-  local port="$(docker port downward.bind 22 | awk -F: '{print $2}')"
-  local host="$(echo ${DOCKER_HOST} | sed 's/^.*:\/\/\([^:]*\).*$/\1/')"
+  if [ $# -lt 1 ]; then
+    echo "Usage: $0 CONTAINER"
+    return 2
+  fi
+  local port="$(docker port $1 22 | awk -F: '{print $2}')"
+  local host="${$(echo ${DOCKER_HOST} | sed 's/^.*:\/\/\([^:]*\).*$/\1/'):-localhost}"
 
-  echo ssh ${host:-localhost} -p ${port}
+  echo ssh ${host} -p ${port}
   ssh ${host} -p ${port}
 }
 
