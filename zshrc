@@ -795,6 +795,30 @@ function docker-ssh() {
   ssh ${host} -p ${port}
 }
 
+function docker-open-browser() {
+  if [ $# -lt 1 ]; then
+    echo "Usage: $0 CONTAINER [PRIVATE_PORT]"
+    return 2
+  fi
+  local container="$1"
+  local private_port="${2:-80}"
+  local port="$(docker port ${container} ${private_port} | awk -F: '{print $2}')"
+  local host="${$(echo ${DOCKER_HOST} | sed 's/^.*:\/\/\([^:]*\).*$/\1/'):-localhost}"
+
+  if [ "${port}" = "" ]; then
+    echo "Error: can't get port ${private_port} on ${container}"
+    return 1
+  fi
+
+  local open_cmd;
+  if [ `uname` = "Darwin" ]; then
+    open_cmd="open"
+  else
+  fi
+
+  sh -xc "${open_cmd} 'http://${host}:${port}/'"
+}
+
 #   view directory history
 alias dh="dirs -v"
 # alias dm='dirs -v; echo -n "select number: "; read newdir; cd -"$newdir"'
