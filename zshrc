@@ -791,8 +791,7 @@ function docker-ssh() {
   local port="$(docker port $1 22 | awk -F: '{print $2}')"
   local host="${$(echo ${DOCKER_HOST} | sed 's/^.*:\/\/\([^:]*\).*$/\1/'):-localhost}"
 
-  echo ssh ${host} -p ${port}
-  ssh ${host} -p ${port}
+  sh -xc "ssh ${host} -p ${port}"
 }
 
 function docker-open-browser() {
@@ -818,6 +817,7 @@ function docker-open-browser() {
 
   sh -xc "${open_cmd} 'http://${host}:${port}/'"
 }
+
 
 #   view directory history
 alias dh="dirs -v"
