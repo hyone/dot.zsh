@@ -769,15 +769,16 @@ function docker-clean() {
   protected_containers=${(z)@:-${DOCKER_PROTECTED_CONTAINERS}}
 
   for c in ${protected_containers}; do
-    id=`docker inspect --format "{{ .Config.Hostname }}" ${c} 2>/dev/null`
+    id=`docker inspect --format "{{ .ID }}" ${c} 2>/dev/null`
     if [ "$id" != "" ]; then
+      echo "'${id}'"
       pattern="${pattern}|$id"
     fi
   done
-  pattern="${pattern#|}"
+  pattern=${pattern#|}
 
   echo '---> removing unused containers...'
-  docker rm `docker ps -a -q | grep -v -E "^${pattern}$"`
+  docker rm `docker ps -a -q --no-trunc | grep -v -E "^${pattern}$"`
 
   echo '---> removing all <none> images...'
   docker rmi $(docker images | grep -e '^<none>' | awk '{ print $3 }' )
