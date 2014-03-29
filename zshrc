@@ -403,9 +403,14 @@ bindkey '^X^_' zce
 
 #   Prefix: C-Q   {{{2
 # ==================================================
+
 bindkey -r  '^Q'
+bindkey -s  '^Qq'       "~/"
 bindkey -s  '^Q^Q'      "~/"
-bindkey     '^Q^w'      kill-region
+bindkey -s  '^Qh'       " --help"
+bindkey -s  '^Q^H'      " --help"
+bindkey -s  '^Qv'       " --version"
+bindkey -s  '^Q^V'      " --version"
 
 
 #   Prefix: Esc (meta key)   {{{2
