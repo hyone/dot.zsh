@@ -794,10 +794,15 @@ function docker-ssh() {
     echo "Usage: $0 CONTAINER"
     return 2
   fi
-  local port="$(docker port $1 22 | awk -F: '{print $2}')"
+
+  local container=$1; shift
+  local args="$*"
+  local port="$(docker port ${container} 22 | awk -F: '{print $2}')"
   local host="${$(echo ${DOCKER_HOST} | sed 's/^.*:\/\/\([^:]*\).*$/\1/'):-localhost}"
 
-  sh -xc "ssh ${host} -p ${port}"
+  if [ "$port" != "" ]; then
+    sh -xc "ssh ${host} -p ${port} ${args}"
+  fi
 }
 
 function docker-open-browser() {
