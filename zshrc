@@ -188,7 +188,7 @@ WORDCHARS='*?_-[]~&;!#$%^(){}<>'
 # git
 function git-status {
   echo
-  git status
+  command git status
   repeat-echo 2
   zle reset-prompt
 }
@@ -714,12 +714,18 @@ alias mv="mv -iv"
 # comment out because it causes problems when using from external modules
 alias rm="rm-safe"
 
+alias ag='ag -S --stats'
 # alias grep="grep -E"
-export GREP_OPTIONS='--color=auto'
+alias grep='grep --color=auto'
 alias tree="tree -F"
 alias h="history -30"
-alias g="git"
 alias x="exit"
+if which hub 1>/dev/null 2>&1; then
+  function git() { hub "$@" }
+  function g() { hub "$@" }
+else
+  alias g="git"
+fi
 
 # if we have pygments, highlighted cat
 if which pygmentize 1>/dev/null 2>&1; then
