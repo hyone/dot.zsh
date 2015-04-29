@@ -709,6 +709,9 @@ function fn() {
   find "${dir}" -name "${pattern}" "$@"
 }
 
+# less
+export LESS='-nqR'
+
 alias cp="cp -iav"
 alias mv="mv -iv"
 # comment out because it causes problems when using from external modules
@@ -736,7 +739,6 @@ fi
 
 if which pygmentize 1>/dev/null 2>&1; then
   export LESSOPEN='|lessfilter %s' 
-  export LESS='-R'
 fi
 
 alias pd="perldoc"
