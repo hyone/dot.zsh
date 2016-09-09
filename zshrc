@@ -729,6 +729,8 @@ if which hub 1>/dev/null 2>&1; then
 else
   alias g="git"
 fi
+# use the same completion as git
+compdef g=git
 
 # if we have pygments, highlighted cat
 if which pygmentize 1>/dev/null 2>&1; then
