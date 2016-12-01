@@ -861,6 +861,9 @@ alias netmonitor="netstat G -v localhost | grep -v stream | grep -v dgram"
 
 # ---- r
 
+alias repo='cd $(ghq root)/$(ghq list | peco)'
+alias repo-remote='hub browse $(ghq list | peco | cut -d "/" -f 2,3)'
+
 alias rm="rm-safe"
 
 # ---- s
