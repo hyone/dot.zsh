@@ -20,7 +20,6 @@ source ${ZSH_BUNDLE_DIR}/antigen/antigen.zsh
 antigen bundles <<EOBUNDLES
   osx
   # hchbaw/auto-fu.zsh
-  zsh-users/zaw
   # zsh-users/zsh-history-substring-search.git
   zsh-users/zsh-syntax-highlighting
 EOBUNDLES
@@ -378,15 +377,6 @@ bindkey '^[w'   copy-region-as-kill
 # bindkey '^XP'   predict-on
 # bindkey '^X^P'  predict-off
 
-# zaw
-bindkey '^X^X' zaw
-bindkey '^X^A' zaw-applications
-bindkey '^X^J' zaw-bookmark
-bindkey '^X^O' zaw-open-file
-bindkey '^X^P' zaw-git-files
-bindkey '^X^R' zaw-history
-bindkey '^X^S' zaw-ssh-hosts
-bindkey '^X^T' zaw-tmux
 bindkey '^X^_' zce
 
 bindkey '^Xc' peco-repository
@@ -657,19 +647,6 @@ if [ -f $ZSH_BUNDLE_DIR/opp.zsh/opp.zsh ]; then
   source $ZSH_BUNDLE_DIR/opp.zsh/opp.zsh
   source $ZSH_BUNDLE_DIR/opp.zsh/opp/*.zsh
 fi
-
-#   zaw.zsh   {{{2
-# ==================================================
-
-zstyle ':filter-select:highlight' matched fg=yellow,standout
-#   lines number for filter-select
-zstyle ':filter-select' max-lines 20
-#   enable rotation for filter-select
-zstyle ':filter-select' rotate-list yes
-#   enable case-insensitive search
-zstyle ':filter-select' case-insensitive yes
-#  enable meta characters below: ^, $, ! ( see: https://github.com/zsh-users/zaw )
-zstyle ':filter-select' extended-search yes
 
 #   zce.zsh   {{{2
 # ==================================================
