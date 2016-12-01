@@ -393,6 +393,8 @@ bindkey '^Xc' peco-repository
 bindkey '^Xf' peco-file
 bindkey '^Xp' peco-git-files
 bindkey '^Xr' peco-history
+#   "^Xs" is originally bound to 'history-incremental-search-forward'
+bindkey '^Xs' peco-ssh
 
 
 #   Prefix: C-Q   {{{2
@@ -724,6 +726,24 @@ function peco-git-files () {
   fi
 }
 zle -N peco-git-files
+
+function peco-ssh () {
+  local selected_host=$(awk '
+  tolower($1)=="host" {
+    for (i=2; i<=NF; i++) {
+      if ($i !~ "[*?]") {
+        print $i
+      }
+    }
+  }
+  ' ~/.ssh/config | sort | peco --query "$LBUFFER")
+  if [ -n "$selected_host" ]; then
+    BUFFER="ssh ${selected_host}"
+    zle accept-line
+  fi
+  zle clear-screen
+}
+zle -N peco-ssh
 
 # ===============================================================================
 # Commands     {{{1
