@@ -368,13 +368,6 @@ bindkey '^O'    reverse-menu-complete
 bindkey '^@'    set-mark-command       # <C-Space>
 bindkey '^[w'   copy-region-as-kill
 
-#   map <C-:> to complete the last argument of the previouse command
-autoload smart-insert-last-word
-zle -N insert-last-word smart-insert-last-word
-#   specify characters zsh guesses as a part of words.
-# zstyle :insert-last-word match '*([^[:space]][[:alpha]/\\\\]|[[:alpha:]/\\\\][^[:space:]])*'']]]]]]]])'
-bindkey '^[:'   insert-last-word
-
 
 #   Prefix: C-X   {{{2
 # ==================================================
@@ -388,17 +381,18 @@ bindkey '^[:'   insert-last-word
 # zaw
 bindkey '^X^X' zaw
 bindkey '^X^A' zaw-applications
-bindkey '^X^L' zaw-git-files
 bindkey '^X^J' zaw-bookmark
 bindkey '^X^O' zaw-open-file
-bindkey '^X^P' zaw-perldoc
+bindkey '^X^P' zaw-git-files
 bindkey '^X^R' zaw-history
 bindkey '^X^S' zaw-ssh-hosts
-#   default ^X^O behavior
-bindkey '^XO'  overwrite-mode
 bindkey '^X^T' zaw-tmux
-#   ^X^Z on keyboard with keyremap4macbook
 bindkey '^X^_' zce
+
+bindkey '^Xc' peco-repository
+bindkey '^Xf' peco-file
+bindkey '^Xp' peco-git-files
+bindkey '^Xr' peco-history
 
 
 #   Prefix: C-Q   {{{2
@@ -407,8 +401,14 @@ bindkey '^X^_' zce
 bindkey -r  '^Q'
 bindkey -s  '^Qq'       "~/"
 bindkey -s  '^Q^Q'      "~/"
+bindkey -s  '^Qd'       " --diff "
+bindkey -s  '^Q^D'      " --diff "
 bindkey -s  '^Qh'       " --help"
 bindkey -s  '^Q^H'      " --help"
+bindkey -s  '^Ql'       " --list "
+bindkey -s  '^Q^L'      " --list "
+bindkey -s  '^Qs'       " --stat "
+bindkey -s  '^Q^S'      " --stat "
 bindkey -s  '^Qv'       " --version"
 bindkey -s  '^Q^V'      " --version"
 
@@ -433,6 +433,14 @@ bindkey    '^[u'   undo
 bindkey    '^[r'   redo
 bindkey    '^[s'   quote-previous-word-in-single
 # bindkey    '^[w'   quote-previous-word-in-double
+bindkey    '^[w'   quote-previous-word-in-double
+
+#   map <Esc-:> to complete the last argument of the previouse command
+autoload smart-insert-last-word
+zle -N insert-last-word smart-insert-last-word
+#   specify characters zsh guesses as a part of words.
+# zstyle :insert-last-word match '*([^[:space]][[:alpha]/\\\\]|[[:alpha:]/\\\\][^[:space:]])*'']]]]]]]])'
+bindkey    '^[:'   insert-last-word
 
 #   vi normal mode  {{{2
 # ==================================================
@@ -668,9 +676,57 @@ if [ -f $ZSH_BUNDLE_DIR/zce.zsh/zce.zsh ]; then
   source $ZSH_BUNDLE_DIR/zce.zsh/zce.zsh
 fi
 
+#   peco   {{{2
+# ==================================================
+
+## ls | p cd
+p() { peco | while read LINE; do $@ $LINE; done }
+
+## find a repository by ghq and go to its directory
+function peco-repository() {
+  local selected_dir=$(ghq list -p | peco --prompt "REPOSITORY >" --query "$LBUFFER")
+  if [ -n "$selected_dir" ]; then
+    BUFFER="cd ${selected_dir}"
+    zle accept-line
+  fi
+  zle clear-screen
+}
+zle -N peco-repository
+
+function peco-history() {
+    local tac
+    if which tac > /dev/null; then
+        tac="tac"
+    else
+        tac="tail -r"
+    fi
+    BUFFER=$(history -n 1 | \
+        eval $tac | \
+        peco --query "$LBUFFER")
+    CURSOR=$#BUFFER
+    zle clear-screen
+}
+zle -N peco-history
+
+function peco-file() {
+    BUFFER="${LBUFFER}$(ls | peco)"
+    CURSOR=$#BUFFER
+    zle clear-screen
+}
+zle -N peco-file
+
+function peco-git-files () {
+  # check whether the current directory is under `git` repository.
+  if git rev-parse 2&> /dev/null; then
+    BUFFER="${LBUFFER}$(git ls-files . | peco)"
+    CURSOR=$#BUFFER
+    zle clear-screen
+  fi
+}
+zle -N peco-git-files
 
 # ===============================================================================
-# Alias     {{{1
+# Commands     {{{1
 # ===============================================================================
 
 #   ls
@@ -680,18 +736,50 @@ elif [ -e "$HOME/etc/sh/DIR_COLORS" ]; then
   eval `dircolors -b $HOME/etc/sh/DIR_COLORS`
 fi
 
-alias l="ls"
-alias ls="ls -F --color=auto"
-alias ll="ls --color=auto -lt"
-alias la="ls --color=auto -at"
-alias lla="ls --color=auto -lat"
-alias llh="ls -lth"
-alias dl="ls -dt */"
-alias dll="ls -l -dt */"
+# less
+export LESS='-nqR'
 
-# preserve user ENV varables and aliases on sudo
-# (tail space must not be removed!)
-alias sudo="sudo -E "
+if which pygmentize 1>/dev/null 2>&1; then
+  export LESSOPEN='|lessfilter %s' 
+fi
+
+# ===============================================================================
+# Alias     {{{1
+# ===============================================================================
+
+# ---- a
+
+alias ag='ag -S --stats'
+
+# ---- c
+
+# if we have pygments, highlighted cat
+if which pygmentize 1>/dev/null 2>&1; then
+  alias c='pygmentize -O style=trac -f console256 -g '    # style=monokai
+else
+  alias c='cat'
+fi
+
+alias cp="cp -iav"
+
+# ---- d
+
+#   docker
+alias d="docker"
+alias de="docker-destroy"
+alias di="docker images"
+alias dk="docker kill"
+alias dp="docker ps"
+alias dr="docker rm"
+
+#   view directory history
+alias dh="dirs -v"
+
+# ---- e
+
+alias e="echo"
+
+# ---- f
 
 # find
 alias f="find"
@@ -709,166 +797,107 @@ function fn() {
   find "${dir}" -name "${pattern}" "$@"
 }
 
-# less
-export LESS='-nqR'
+# ---- g
 
-alias cp="cp -iav"
-alias mv="mv -iv"
-# comment out because it causes problems when using from external modules
-alias rm="rm-safe"
-
-alias ag='ag -S --stats'
-# alias grep="grep -E"
-alias grep='grep --color=auto'
-alias tree="tree -F"
-alias h="history -30"
-alias x="exit"
+#   git
 if which hub 1>/dev/null 2>&1; then
   function git() { hub "$@" }
   function g() { hub "$@" }
 else
   alias g="git"
 fi
-# use the same completion as git
+#   use the same completion as git
 compdef g=git
 
-# if we have pygments, highlighted cat
-if which pygmentize 1>/dev/null 2>&1; then
-  alias c='pygmentize -O style=trac -f console256 -g '    # style=monokai
-else
-  alias c='cat'
-fi
+# alias grep="grep -E"
+alias grep='grep --color=auto'
 
-if which pygmentize 1>/dev/null 2>&1; then
-  export LESSOPEN='|lessfilter %s' 
-fi
+# ---- h
 
-alias pd="perldoc"
-alias pe="perl -MData::Dump=dump -e"
-alias ppe="perl -MData::Dump=dump -pe"
-alias pne="perl -MData::Dump=dump -ne"
+alias h="history -30"
+
+# ---- l
+
+alias l="ls"
+alias la="ls --color=auto -at"
+alias ls="ls -F --color=auto"
+alias ll="ls --color=auto -lt"
+alias lla="ls --color=auto -lat"
+alias llh="ls -lth"
+alias lsd="ls -dt */"
+alias lld="ls -l -dt */"
+
+# ---- m
 
 #   man
-alias man="LC_ALL=C LANG=C /usr/bin/man"
-alias jman="LC_ALL=ja_JP.eucjp /usr/bin/man"
 alias m="man"
+alias man="LC_ALL=C LANG=C /usr/bin/man"
 
-alias vr="vim -R"
+alias mv="mv -iv"
 
-#   docker
-alias d="docker"
-alias de="docker-destroy"
-alias di="docker images"
-alias dk="docker kill"
-alias dp="docker ps"
-alias dr="docker rm"
+# ---- n
 
-function docker-destroy() {
-  local -a containers
-  containers=${(z)@}
-
-  if [ "$containers" = "" ]; then
-    echo "Usage: $0 CONTAINER"
-    return 2;
-  fi
-
-  for container in ${containers}; do
-    docker kill ${container} && docker rm ${container}
-  done
-}
-
-# clean up unused containers and non-named images
-function docker-clean() {
-  local pattern
-  local -a protected_containers
-  protected_containers=${(z)@:-${DOCKER_PROTECTED_CONTAINERS}}
-
-  for c in ${protected_containers}; do
-    id=`docker inspect --format "{{ .ID }}" ${c} 2>/dev/null`
-    if [ "$id" != "" ]; then
-      echo "'${id}'"
-      pattern="${pattern}|$id"
-    fi
-  done
-  pattern=${pattern#|}
-
-  echo '---> removing unused containers...'
-  docker rm `docker ps -a -q --no-trunc | grep -v -E "^${pattern}$"`
-
-  echo '---> removing all <none> images...'
-  docker rmi $(docker images | grep -e '^<none>' | awk '{ print $3 }' )
-}
-
-function docker-ssh() {
-  if [ $# -lt 1 ]; then
-    echo "Usage: $0 CONTAINER"
-    return 2
-  fi
-
-  local container=$1; shift
-  local args="$*"
-  local port="$(docker port ${container} 22 | awk -F: '{print $2}')"
-  local host="${$(echo ${DOCKER_HOST} | sed 's/^.*:\/\/\([^:]*\).*$/\1/'):-localhost}"
-
-  if [ "$port" != "" ]; then
-    sh -xc "ssh ${host} -p ${port} ${args}"
-  fi
-}
-
-function docker-open-browser() {
-  if [ $# -lt 1 ]; then
-    echo "Usage: $0 CONTAINER [PRIVATE_PORT]"
-    return 2
-  fi
-  local container="$1"
-  local private_port="${2:-80}"
-  local port="$(docker port ${container} ${private_port} | awk -F: '{print $2}')"
-  local host="${$(echo ${DOCKER_HOST} | sed 's/^.*:\/\/\([^:]*\).*$/\1/'):-localhost}"
-
-  if [ "${port}" = "" ]; then
-    echo "Error: can't get port ${private_port} on ${container}"
-    return 1
-  fi
-
-  local open_cmd;
-  if [ `uname` = "Darwin" ]; then
-    open_cmd="open"
-  else
-  fi
-
-  sh -xc "${open_cmd} 'http://${host}:${port}/'"
-}
-
-
-#   view directory history
-alias dh="dirs -v"
-# alias dm='dirs -v; echo -n "select number: "; read newdir; cd -"$newdir"'
-
-#   useful command
-alias view-binary="od -t cx1 -w8"
 alias netmonitor="netstat G -v localhost | grep -v stream | grep -v dgram"
 
-#   suffix alias
+# ---- r
+
+alias rm="rm-safe"
+
+# ---- s
+
+# preserve user ENV varables and aliases on sudo
+# (tail space must not be removed!)
+alias sudo="sudo -E "
+
+# ---- t
+
+alias tree="tree -F"
+
+# ---- x
+
+alias x="exit"
+
+# ---- v
+
+alias vr="vim -R"
+alias view-binary="od -t cx1 -w8"
+
+
+#   suffix alias  {{{2
+# ==================================================
+
 alias -s {txt,c,cpp,h,bak}=$PAGER
 alias -s {tgz,gz}=zcat
 alias -s {tbz,bz2}=bzcat
 alias -s zip=zipinfo
 
-#   global alias
+
+#   global alias  {{{2
+# ==================================================
+
+# ---- e
 alias -g E="| nkf -e"
-alias -g S="| nkf -s"
-alias -g U="| nkf -w"
-alias -g L="| less -R -M"
-alias -g LN=" L -N"
-alias -g G="| grep -E"
-alias -g P=" --help | $PAGER"
-alias -g V="| vim -R -"
+# ---- h
 alias -g H="| head"
 alias -g H20="| head -n20"
 alias -g H30="| head -n30"
 alias -g H50="| head -n50"
 alias -g H100="| head -n100"
 alias -g H500="| head -n500"
+# ---- g
+alias -g G="| grep -E"
+# ---- j
+alias -g JSON="| python -m json.tool"
+alias -g JQ="| jq -C '.'"
+# ---- l
+alias -g L="| less -R -M"
+alias -g LN=" L -N"
+# ---- p
+alias -g P="| p"
+# ---- s
+alias -g S="| nkf -s"
+# ---- t
+# tail
 alias -g T="| tail"
 alias -g T20="| tail -n20"
 alias -g T30="| tail -n30"
@@ -877,7 +906,22 @@ alias -g T100="| tail -n100"
 alias -g T500="| tail -n500"
 alias -g T1000="| tail -n1000"
 
-# convert character encoding
+alias -g TAI="| tai64nlocal"
+# ---- u
+alias -g U="| nkf -w"
+# ---- x
+alias -g X0="-print0 | xargs -0"
+alias -g X0I="-print0 | xargs -0 -i"
+alias -g X0G="-print0 | xargs -0 grep -E -n"
+#   copy matched pathes with keeping directory structure
+alias -g X0CP="-print0 | cpio -pd0 "
+# ---- v
+alias -g V="| vim -R -"
+# ---- w
+alias -g WL="| wc -l"
+alias -g WW="| wc -w"
+
+# ---- convert character encoding
 alias -g SJIS="| iconv -f sjis"
 alias -g EUCJP="| iconv -f euc-jp"
 alias -g IS="| iconv -f sjis"
@@ -886,20 +930,6 @@ alias -g IU="| iconv -f utf8"
 alias -g OS="| iconv -t sjis"
 alias -g OE="| iconv -t euc-jp"
 alias -g OU="| iconv -t utf8"
-
-alias -g WL="| wc -l"
-alias -g WW="| wc -w"
-
-alias -g X0="-print0 | xargs -0"
-alias -g X0I="-print0 | xargs -0 -i"
-alias -g X0G="-print0 | xargs -0 grep -E -n"
-# copy matched pathes with keeping directory structure
-alias -g 0CP="-print0 | cpio -pd0 "
-
-alias -g TAI="| tai64nlocal"
-
-alias -g JSON="| python -m json.tool"
-alias -g JQ="| jq -C '.'"
 
 alias -g ...='../..'
 alias -g ....='../../..'
@@ -917,13 +947,6 @@ alias -g ......='../../../../..'
 # ===============================================================================
 # Finalize  {{{1
 # ===============================================================================
-
-# # exec screen if $TERM is not kind of screen's one
-# case "$TERM" in
-#   screen*)    :          ;;
-#   ansi-term*) :          ;;
-#   *)          screen -R  ;;
-# esac
 
 # vim: expandtab softtabstop=2 shiftwidth=2
 # vim: set fdm=marker:

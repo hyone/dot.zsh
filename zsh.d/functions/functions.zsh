@@ -26,7 +26,7 @@ function cleanup-vim-swapfiles {
     if [ ! $target ]; then
         target="."
     fi
-    find $target -type f \( -name ".*.swo" -o -name ".*.swp" \) -print | while read i
+    find $target -type f -name ".*.sw?" -print | while read i
     do
         echo "delete " $i
         /bin/rm $i
