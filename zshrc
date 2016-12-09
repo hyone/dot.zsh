@@ -6,6 +6,7 @@
 
 ZSH_DIR=~/.zsh.d
 ZSH_BUNDLE_DIR=${ZSH_DIR}/bundle
+ZSH_CONFIGURATIONS_DIR=${ZSH_DIR}/etc
 ZSH_FUNCTIONS_DIR=${ZSH_DIR}/functions
 
 FPATH="${ZSH_FUNCTIONS_DIR}:$FPATH"
@@ -178,139 +179,6 @@ DIRSTACKSIZE=50
 #   separator between words
 WORDCHARS='*?_-[]~&;!#$%^(){}<>'
 # WORDCHARS='*?_-[]~=&;!#$%^(){}<>'
-
-
-# ===============================================================================
-# ZLE Widgets   {{{1
-# ===============================================================================
-
-# git
-function git-status {
-  echo
-  command git status
-  repeat-echo 2
-  zle reset-prompt
-}
-zle -N git-status
-
-function git-branch {
-  echo
-  git branch --color --verbose
-  repeat-echo 2
-  zle reset-prompt
-}
-zle -N git-branch
-
-function git-shortlog {
-  echo
-  git ll
-  repeat-echo 3
-  zle reset-prompt
-}
-zle -N git-shortlog
-
-# directories and files
-function cd-up {
-  echo
-  cd ..
-  zle reset-prompt
-}
-zle -N cd-up
-
-function ll-files {
-  echo
-  ls -lF --color=auto
-  zle reset-prompt
-}
-zle -N ll-files
-
-# etcetra
-
-#   move to before period of filename ext
-function move-to-before-file-ext() {
-  zle vi-backward-word
-  for i in {1..2}
-  do
-      zle backward-char
-  done
-}
-zle -N move-to-before-file-ext
-
-#   quote the previous word with single or double quote.
-autoload -U modify-current-argument
-
-function quote-previous-word-in-single() {
-  modify-current-argument '${(qq)${(Q)ARG}}'
-  zle vi-forward-blank-word
-}
-zle -N quote-previous-word-in-single
-
-function quote-previous-word-in-double() {
-  modify-current-argument '${(qqq)${(Q)ARG}}'
-  zle vi-forward-blank-word
-}
-zle -N quote-previous-word-in-double
-
-# copy and paste with OS clipboard
-
-function clipboard-copy() {
-  if [[ "$(uname)" == "Linux" ]]; then
-    print -rn $CUTBUFFER | xclip -i -selection clipboard
-  elif [[ "$(uname)" == "Darwin" ]]; then
-    print -rn $CUTBUFFER | pbcopy
-  fi
-}
-
-function clipboard-paste() {
-  if [[ "$(uname)" == "Linux" ]]; then
-    CUTBUFFER=$(xclip -o -selection clipboard)
-  elif [[ "$(uname)" == "Darwin" ]] ; then
-    CUTBUFFER=$(pbpaste)
-  fi
-}
-
-function x-copy-region-as-kill() {
-  zle copy-region-as-kill
-  REGION_ACTIVE=0
-  clipboard-copy
-}
-zle -N x-copy-region-as-kill
-
-function x-kill-region() {
-  zle kill-region
-  clipboard-copy
-}
-zle -N x-kill-region
-
-function x-put() {
-  clipboard-paste
-  zle put
-}
-zle -N x-put
-
-function x-vi-yank() {
-  zle vi-yank
-  clipboard-copy
-}
-zle -N x-vi-yank
-
-function x-vi-delete() {
-  zle vi-delete
-  clipboard-copy
-}
-zle -N x-vi-delete
-
-function x-vi-put-before() {
-  clipboard-paste
-  zle vi-put-before
-}
-zle -N x-vi-put-before
-
-function x-vi-put-after() {
-  clipboard-paste
-  zle vi-put-after
-}
-zle -N x-vi-put-after
 
 
 # ===============================================================================
@@ -587,10 +455,20 @@ esac
 # Functions     {{{1
 # ===============================================================================
 
-
-[ -f ${ZSH_FUNCTIONS_DIR}/functions.zsh ] && source ${ZSH_FUNCTIONS_DIR}/functions.zsh
+for file in ${ZSH_FUNCTIONS_DIR}/*.zsh; do
+  [ -f $file ] && source $file
+done
 
 autoload mkcd namedir psg randomline rm-safe
+
+
+# ===============================================================================
+# Configurations     {{{1
+# ===============================================================================
+
+for file in ${ZSH_CONFIGURATIONS_DIR}/*.zsh; do
+  [ -f $file ] && source $file
+done
 
 
 # ===============================================================================
@@ -654,73 +532,6 @@ fi
 if [ -f $ZSH_BUNDLE_DIR/zce.zsh/zce.zsh ]; then
   source $ZSH_BUNDLE_DIR/zce.zsh/zce.zsh
 fi
-
-#   peco   {{{2
-# ==================================================
-
-## ls | p cd
-p() { peco | while read LINE; do $@ $LINE; done }
-
-## find a repository by ghq and go to its directory
-function peco-repository() {
-  local selected_dir=$(ghq list -p | peco --prompt "REPOSITORY >" --query "$LBUFFER")
-  if [ -n "$selected_dir" ]; then
-    BUFFER="cd ${selected_dir}"
-    zle accept-line
-  fi
-  zle clear-screen
-}
-zle -N peco-repository
-
-function peco-history() {
-    local tac
-    if which tac > /dev/null; then
-        tac="tac"
-    else
-        tac="tail -r"
-    fi
-    BUFFER=$(history -n 1 | \
-        eval $tac | \
-        peco --query "$LBUFFER")
-    CURSOR=$#BUFFER
-    zle clear-screen
-}
-zle -N peco-history
-
-function peco-file() {
-    BUFFER="${LBUFFER}$(ls | peco)"
-    CURSOR=$#BUFFER
-    zle clear-screen
-}
-zle -N peco-file
-
-function peco-git-files () {
-  # check whether the current directory is under `git` repository.
-  if git rev-parse 2&> /dev/null; then
-    BUFFER="${LBUFFER}$(git ls-files . | peco)"
-    CURSOR=$#BUFFER
-    zle clear-screen
-  fi
-}
-zle -N peco-git-files
-
-function peco-ssh () {
-  local selected_host=$(awk '
-  tolower($1)=="host" {
-    for (i=2; i<=NF; i++) {
-      if ($i !~ "[*?]") {
-        print $i
-      }
-    }
-  }
-  ' ~/.ssh/config | sort | peco --query "$LBUFFER")
-  if [ -n "$selected_host" ]; then
-    BUFFER="ssh ${selected_host}"
-    zle accept-line
-  fi
-  zle clear-screen
-}
-zle -N peco-ssh
 
 # ===============================================================================
 # Commands     {{{1
@@ -835,6 +646,11 @@ alias mv="mv -iv"
 # ---- n
 
 alias netmonitor="netstat G -v localhost | grep -v stream | grep -v dgram"
+
+# ---- p
+
+## ls | p cd
+p() { peco | while read LINE; do $@ $LINE; done }
 
 # ---- r
 
