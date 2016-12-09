@@ -247,9 +247,11 @@ bindkey '^[w'   copy-region-as-kill
 
 bindkey '^X^_' zce
 
-bindkey '^Xc' peco-repository
+bindkey '^Xb' peco-git-branch
+bindkey '^Xc' peco-git-commit
 bindkey '^Xf' peco-file
 bindkey '^Xp' peco-git-files
+bindkey '^Xq' peco-repository
 bindkey '^Xr' peco-history
 #   "^Xs" is originally bound to 'history-incremental-search-forward'
 bindkey '^Xs' peco-ssh
