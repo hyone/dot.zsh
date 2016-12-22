@@ -661,6 +661,9 @@ p() { peco | while read LINE; do $@ $LINE; done }
 
 # ---- r
 
+# prevserve default 'r' builtin shell command
+alias _r='builtin r'
+alias r='rails'
 alias repo='cd $(ghq root)/$(ghq list | peco)'
 alias repo-remote='hub browse $(ghq list | peco | cut -d "/" -f 2,3)'
 
