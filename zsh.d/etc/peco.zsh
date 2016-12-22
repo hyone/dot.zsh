@@ -35,7 +35,7 @@ function peco-ssh () {
 zle -N peco-ssh
 
 function peco-git-branch() {
-    local selected=$(git branch -a | peco | tr -d ' ' | tr -d '*')
+    local selected=$(git branch -a --sort=-authordate | peco | tr -d ' ' | tr -d '*')
     _peco-insert-command-line $selected
 }
 zle -N peco-git-branch
