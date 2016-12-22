@@ -300,8 +300,7 @@ bindkey    '^[p'   cd-up
 bindkey    '^[u'   undo
 bindkey    '^[r'   redo
 bindkey    '^[s'   quote-previous-word-in-single
-# bindkey    '^[w'   quote-previous-word-in-double
-bindkey    '^[w'   quote-previous-word-in-double
+bindkey    '^[v'   quote-previous-word-in-double
 
 #   map <Esc-:> to complete the last argument of the previouse command
 autoload smart-insert-last-word
