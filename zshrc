@@ -249,6 +249,7 @@ bindkey '^[w'   copy-region-as-kill
 bindkey '^Xb'   peco-git-branch
 bindkey '^Xc'   peco-git-commit
 bindkey '^Xf'   peco-file
+bindkey '^Xo'   peco-git-checkout-branch
 bindkey '^Xp'   peco-git-files
 bindkey '^Xq'   peco-repository
 bindkey '^Xr'   peco-history

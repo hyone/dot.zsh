@@ -46,6 +46,15 @@ function peco-git-commit() {
 }
 zle -N peco-git-commit
 
+function peco-git-checkout-branch() {
+    local selected=$(git branch -a --sort=-authordate | peco | tr -d ' ' | tr -d '*')
+    if [ -n "$selected" ]; then
+      BUFFER="git checkout ${selected}"
+    fi
+    zle accept-line
+}
+zle -N peco-git-checkout-branch
+
 function peco-history() {
   local tac="tail - r"
   if which tac > /dev/null; then
