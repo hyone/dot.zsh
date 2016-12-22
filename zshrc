@@ -272,6 +272,17 @@ bindkey -s  '^Qv'       " --version"
 
 #   Prefix: Esc (meta key)   {{{2
 # ==================================================
+# Default Keybinds:
+#   '^[a'   accept-and-hold (execute command with keeping the commandline buffer)
+#   '^[q'   push-line
+#   '^[g'   pop-line
+#   '^[x'   execute zle command
+
+# Vacant keybinds:
+#   '^[l'
+#   '^[;'
+#   '^[,'
+#
 
 #   show candidates list that is matched shell meta charaters such as wildcard
 bindkey    '^[e'   list-expand
