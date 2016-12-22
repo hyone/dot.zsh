@@ -197,7 +197,8 @@ bindkey -e
 # bindkey -v
 
 #   default emacs bindings but can use vi normal mode by Ctrl-]
-bindkey '^]' vi-cmd-mode
+bindkey '^]'    vi-cmd-mode
+
 #   By default, there is a 0.4 second delay, which cause time lag when moving between modes
 #   so, make shorter to 0.1 seconds.
 export KEYTIMEOUT=10
@@ -245,16 +246,14 @@ bindkey '^[w'   copy-region-as-kill
 # bindkey '^XP'   predict-on
 # bindkey '^X^P'  predict-off
 
-bindkey '^X^_' zce
-
-bindkey '^Xb' peco-git-branch
-bindkey '^Xc' peco-git-commit
-bindkey '^Xf' peco-file
-bindkey '^Xp' peco-git-files
-bindkey '^Xq' peco-repository
-bindkey '^Xr' peco-history
+bindkey '^Xb'   peco-git-branch
+bindkey '^Xc'   peco-git-commit
+bindkey '^Xf'   peco-file
+bindkey '^Xp'   peco-git-files
+bindkey '^Xq'   peco-repository
+bindkey '^Xr'   peco-history
 #   "^Xs" is originally bound to 'history-incremental-search-forward'
-bindkey '^Xs' peco-ssh
+bindkey '^Xs'   peco-ssh
 
 
 #   Prefix: C-Q   {{{2
@@ -264,15 +263,11 @@ bindkey -r  '^Q'
 bindkey -s  '^Qq'       "~/"
 bindkey -s  '^Q^Q'      "~/"
 bindkey -s  '^Qd'       " --diff "
-bindkey -s  '^Q^D'      " --diff "
+bindkey -s  '^Qe'       " --example "
 bindkey -s  '^Qh'       " --help"
-bindkey -s  '^Q^H'      " --help"
 bindkey -s  '^Ql'       " --list "
-bindkey -s  '^Q^L'      " --list "
 bindkey -s  '^Qs'       " --stat "
-bindkey -s  '^Q^S'      " --stat "
 bindkey -s  '^Qv'       " --version"
-bindkey -s  '^Q^V'      " --version"
 
 
 #   Prefix: Esc (meta key)   {{{2
