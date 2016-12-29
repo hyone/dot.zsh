@@ -667,8 +667,10 @@ alias _r='builtin r'
 alias r='rails'
 alias repo='cd $(ghq root)/$(ghq list | peco)'
 alias repo-remote='hub browse $(ghq list | peco | cut -d "/" -f 2,3)'
-
 alias rm="rm-safe"
+if which cargo-script >/dev/null; then
+  alias rust='cargo script'
+fi
 
 # ---- s
 
