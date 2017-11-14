@@ -393,12 +393,8 @@ RPROMPT='$(vi_mode_prompt_info)'
 
 
 # ===============================================================================
-# Hook at chpwd and preexec     {{{1
+# On chpwd and preexec     {{{1
 # ===============================================================================
-
-typeset -ga chpwd_functions
-typeset -ga preexec_functions
-typeset -ga precmd_functions
 
 function _rprompt_locallib() {
   local -A locallib
@@ -418,7 +414,6 @@ functions _clear() {
   clear
 }
 
-
 #   exec ls if the number of files in current dir is less than 100
 functions _show_ls() {
   local maxfiles=100
@@ -428,35 +423,11 @@ functions _show_ls() {
   fi
 }
 
-chpwd_functions+=_show_ls
-chpwd_functions+=_set_rprompt
+add-zsh-hook chpwd _show_ls
+# add-zsh-hook chpwd _clear
 
-preexec_functions+=_set_rprompt
-# preexec_functions+=_clear
-
-precmd_functions+=vcs_info
-
-# title for screen
-#---------------------------------
-
-case "${TERM}" in screen*)
-  local -a shorthost
-  shorthost="${HOST%%.*}:"
-
-  # display title on screen window like 'host:dir' or 'host:$cmd'
-  functions _display_host_dir() {
-      echo -ne "\ek${shorthost}\$${1%% *}\e\\"
-  }
-
-  # back to 'host:dir' after exit cmd.
-  functions _display_host_dir_back() {
-      echo -ne "\ek${shorthost}$(basename $(pwd))\e\\"
-  }
-
-  preexec_functions+=_display_host_dir
-  precmd_functions+=_display_host_dir_back
-  ;;
-esac
+add-zsh-hook precmd vcs_info
+add-zsh-hook precmd _set_rprompt
 
 
 # ===============================================================================
