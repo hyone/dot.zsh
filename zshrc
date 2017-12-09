@@ -429,6 +429,24 @@ add-zsh-hook chpwd _show_ls
 add-zsh-hook precmd vcs_info
 add-zsh-hook precmd _set_rprompt
 
+# title for tmux window
+#---------------------------------
+
+case "${TERM}" in screen*)
+  # display title on screen window like 'dir' or '$cmd'
+  functions _display_host_dir() {
+      echo -ne "\ek\$${1%% *}\e\\"
+  }
+
+  # back to 'dir' after exit cmd.
+  functions _display_host_dir_back() {
+      echo -ne "\ek$(basename $(pwd))\e\\"
+  }
+
+  add-zsh-hook preexec _display_host_dir
+  add-zsh-hook precmd _display_host_dir_back
+  ;;
+esac
 
 # ===============================================================================
 # Functions     {{{1
